@@ -1,8 +1,0 @@
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
-export class LiveStreamService {
-    async goLive(){
-        
-    }
-}
