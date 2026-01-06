@@ -57,5 +57,14 @@ export class TranscodingService extends EventEmitter implements OnModuleDestroy{
      this.processes.set(sessionId,ffmpeg)
      return `/hls/${sessionId}/manifest.m3u8` ;
    }
-   
+   writeChunk(sessionId: string, chunk: Buffer){
+    const process = this.processes.get(sessionId)
+    if(process&&!process.stdin?.destroyed){
+         process.stdin?.write(chunk)
+    }
+   }
+
+   async stopTranscoding(){
+      
+   }
 } 
