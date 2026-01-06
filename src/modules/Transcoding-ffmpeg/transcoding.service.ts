@@ -2,7 +2,7 @@ import { Injectable, OnModuleDestroy} from '@nestjs/common';
 import { ChildProcess, spawn } from 'child_process';
 import { join } from 'path';
 import EventEmitter from 'events';
-import { mkdir } from 'fs/promises';
+import { mkdir,rm } from 'fs/promises';
 
 @Injectable()
 export class TranscodingService extends EventEmitter implements OnModuleDestroy{
@@ -53,18 +53,38 @@ export class TranscodingService extends EventEmitter implements OnModuleDestroy{
      ffmpeg.on('exit',(code)=>{
         console.log(`process exit with code ${code}`)
         this.processes.delete(sessionId)
+        this.emit('transcoding-ending',sessionId)
      })
      this.processes.set(sessionId,ffmpeg)
      return `/hls/${sessionId}/manifest.m3u8` ;
-   }
+   };
+
    writeChunk(sessionId: string, chunk: Buffer){
     const process = this.processes.get(sessionId)
     if(process&&!process.stdin?.destroyed){
          process.stdin?.write(chunk)
     }
-   }
+   };
 
-   async stopTranscoding(){
-      
+   stopTranscoding(sessionId: string){
+      const process =this.processes.get(sessionId)
+      if(process){
+        process.kill('SIGTERM')
+        this.processes.delete(sessionId)
+      }
+      setTimeout(async()=>{
+        try{
+            await rm(join(this.hlsOutputDir,sessionId), {recursive: true, force:true})
+        }
+        catch(err){
+            console.log(`failed to cleanup ${sessionId}`)
+        }
+      },5000)
+   }
+   onModuleDestroy() {
+     for (const [sessionId,process] of this.processes.entries()){
+        process.kill('SIGTERM')
+        console.log(`ffmpeg killed ${sessionId}`)
+     }
    }
 } 
