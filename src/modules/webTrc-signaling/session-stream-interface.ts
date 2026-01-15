@@ -6,7 +6,8 @@ export interface SessionStream{
     clientId: string,
     client: Socket,
     pc?:RTCPeerConnection,
-    status:'starting'|'live|'|'ended',
+    hlsUrl?: string;
+    status:'starting'|'live'|'ended',
     viewCount:number,
     createdAt: Date
 }
