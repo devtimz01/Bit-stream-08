@@ -8,11 +8,11 @@ import { mkdir,rm } from 'fs/promises';
 export class TranscodingService extends EventEmitter implements OnModuleDestroy{
    private processes = new Map<string,ChildProcess>()
    private readonly hlsOutputDir = join(process.cwd(),'hls')
-  async startTranscoding(sessionId: string){
+  async startTranscoding(sessionId: string, inputStream: MediaStream):Promise<string>{
     const outputDir = join(this.hlsOutputDir,sessionId)
      await mkdir(outputDir,{recursive:true})
      const ffmpeg = spawn('ffmpeg',[
-        //NB: right her is my input flag
+        //NB: right here is my input flag
         '-re', // Real-time input
         '-i', 'pipe:0', // Read from stdin
         '-f', 'webm', // Input format
@@ -34,7 +34,7 @@ export class TranscodingService extends EventEmitter implements OnModuleDestroy{
       '-ar', '44100',
       '-ac', '2',
 
-      //hls setting
+      //my hls setting
        '-f', 'hls',
       '-hls_time', '4', // Segment length
       '-hls_list_size', '6', // Max segments in playlist
