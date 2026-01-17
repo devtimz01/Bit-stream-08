@@ -3,11 +3,11 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import type{ Response } from 'express';
 
-@Controller('live-stream')
+@Controller('hls')
 export class LiveStreamController {
     private readonly outDir = join(process.cwd(),'hls')
     @Get('/:sessionId/manifest.m3u8')
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     serverManifest(@Param('sessionId') sessionId:string, @Res() res:Response){
         try{
             const manifestPath =join(this.outDir,sessionId)
@@ -19,11 +19,12 @@ export class LiveStreamController {
             return res.sendFile(manifestPath)
         }
         catch(e){
+            console.log(e)
             throw new InternalServerErrorException
         }
     }
     @Get('/:sessionId/:segment')
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     serveSegment(@Param('sessionId') sessionId:string, @Param('segment') segment:string, @Res() res:Response){
         try{
             const segmentPath =join(this.outDir,sessionId,segment)
@@ -35,7 +36,8 @@ export class LiveStreamController {
             return res.sendFile(segmentPath)
         }
         catch(e){
+            console.log(e)
             throw new InternalServerErrorException
         }
     } 
-}
+};

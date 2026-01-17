@@ -1,0 +1,6 @@
+# Create manifest
+echo "#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:4
+#EXTINF:4.000000,
+segment_001.ts" > hls/test_stream/manifest.m3u8
