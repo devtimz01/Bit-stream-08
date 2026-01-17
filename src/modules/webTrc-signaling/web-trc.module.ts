@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TranscodingService } from '../Transcoding-ffmpeg/transcoding.service';
+import { WebTrcSignalingGateway } from './web-trc.service';
+import { TranscodingModule } from '../Transcoding-ffmpeg/transcoding.module';
 
-@Module({})
-export class WebTrcModule {
-    import:[TranscodingService]
-}
+@Module({
+    imports:[TranscodingModule],
+    exports:[WebTrcSignalingGateway],
+    providers:[WebTrcSignalingGateway]
+})
+
+export class WebTrcModule {}

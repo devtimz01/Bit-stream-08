@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SessionStream } from './session-stream-interface';
@@ -12,7 +11,6 @@ export class WebTrcSignalingGateway {
     constructor(private transcodingService:TranscodingService){
         
     }
-
     @SubscribeMessage('stream-offer')
     async handleStartStream(@MessageBody() data:{userId:string ,offer:RTCSessionDescriptionInit},@ConnectedSocket() client:Socket){
         const sessionId= `stream_${data.userId}_${Date.now()}`
@@ -30,11 +28,12 @@ export class WebTrcSignalingGateway {
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' }
         ]
-        return{
-            sessionId,
-            iceServers,
-            ingestedWsUrl:`ws://localhost:3000/ingest/${sessionId}`
-        }
+        //Emit back to client
+         client.emit('stream-offer', { 
+           sessionId,
+           iceServers,
+           ingestedWsUrl:`ws://localhost:3000/ingest/${sessionId}`
+  });
     }
     @SubscribeMessage('offer-stream')
     async handleStreamOffer(@MessageBody() data:{sessionId: string,offer: RTCSessionDescriptionInit}){
